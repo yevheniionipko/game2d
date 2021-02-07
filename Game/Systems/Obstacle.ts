@@ -1,10 +1,12 @@
 import Matter from 'matter-js';
-import {getRandom} from '../Utils/random';
-import { width } from "../Utils/styleSheet";
+import { getRandom } from '../Utils/random';
+import { width } from '../Utils/styleSheet';
+import Entities from '../Entities';
 
-const UpdateObstacle = (entities, {time, dispatch}) => {
+// @ts-ignore
+const UpdateObstacle = (entities: typeof Entities, { dispatch }) => {
   const obstacles = Object.values(entities).filter(
-    item => item.body && item.body.label === 'obstacle'
+    item => item.body && item.body.label === 'obstacle',
   );
 
   obstacles.forEach((item) => {
@@ -13,13 +15,13 @@ const UpdateObstacle = (entities, {time, dispatch}) => {
         x: getRandom(20, width - 20),
         y: -100,
       });
-      dispatch({type: 'score'})
+      dispatch({ type: 'score' });
     }
     if (item.body.position.x > width || item.body.position.x < 0) {
-        Matter.Body.setPosition(item.body, {
-          x: getRandom(0, width - 30),
-          y: item.body.position.y,
-        });
+      Matter.Body.setPosition(item.body, {
+        x: getRandom(0, width - 30),
+        y: item.body.position.y,
+      });
     }
   });
 

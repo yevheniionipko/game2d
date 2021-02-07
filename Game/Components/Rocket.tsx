@@ -1,12 +1,10 @@
 import React from 'react';
-import { Image } from 'react-native';
-import {array, object, string} from 'prop-types';
 import Matter from 'matter-js';
 import FastImage from 'react-native-fast-image';
 
 const rocket = require('../Assets/rocket.png');
 
-const Rocket = props => {
+const Rocket = (props: { size: any[], body: { position: { x: number, y: number } } }) => {
   const width = props.size[0];
   const height = props.size[1];
   const x = props.body.position.x - width / 2;
@@ -27,7 +25,7 @@ const Rocket = props => {
   );
 };
 
-export default (world, pos, size) => {
+export default (world: Matter.World, pos: { x: number, y: number }, size: { width: number, height: number }) => {
   const initialRocket = Matter.Bodies.rectangle(
     pos.x,
     pos.y,
@@ -41,6 +39,7 @@ export default (world, pos, size) => {
   return {
     body: initialRocket,
     size: [size.width, size.height],
+    // @ts-ignore
     renderer: <Rocket />,
   };
 };

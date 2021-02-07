@@ -1,26 +1,31 @@
-import React, {useRef, useState, useEffect} from 'react';
-import { Alert, LogBox, Animated, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
+import React, { useRef, useState, useEffect } from 'react';
+import { Animated, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import Entities from './Entities';
 import Systems from './Systems';
 import { GameEngine } from 'react-native-game-engine';
 import FastImage from 'react-native-fast-image';
 import LottieView from 'lottie-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-LogBox.ignoreAllLogs();
-
-export default () => {
-  const gameEngine = useRef(null);
-  const lottieView = useRef(null);
-  const gameOverLottie = useRef(null);
-  const [running, setRun] = useState(false)
-  const [score, setScore] = useState(0)
-  const [timer, setTimer] = useState(false)
-  const [gameOver, setGameOver] = useState('')
+export default (): React.ReactNode => {
+  const gameEngine = useRef<GameEngine>(null);
+  const lottieView = useRef<LottieView>(null);
+  const gameOverLottie = useRef<LottieView>(null);
+  const [running, setRun] = useState(false);
+  const [score, setScore] = useState(0);
+  const [timer, setTimer] = useState(false);
+  const [gameOver, setGameOver] = useState('');
+  const [prevScore, setPrevScore] = useState(0);
   const animate = new Animated.Value(0);
 
   useEffect(() => {
+    AsyncStorage.getItem('score').then(res => {
+      if (!!res) {
+        setPrevScore(+res);
+      }
+    });
     if (!running) {
-      setTimer(true)
+      setTimer(true);
     }
   }, []);
 
@@ -29,6 +34,7 @@ export default () => {
       Animated.timing(animate, {
         toValue: 1,
         duration: 1000,
+        useNativeDriver: true,
       }).start();
       gameOverLottie?.current?.play();
     }
@@ -40,17 +46,23 @@ export default () => {
     }
   }, [timer]);
 
-  const onEvent = e => {
+  const onEvent = (e: { type: string }) => {
     if (e.type === 'score') {
       setScore(score + 1);
     }
     if (e.type === 'gameOver' && running) {
+      if (score > prevScore) {
+        AsyncStorage.setItem('score', String(score)).then(() => {
+          setPrevScore(score);
+        });
+      }
       setRun(false);
       setGameOver('Game Over');
     }
   };
 
   const restart = () => {
+    // @ts-ignore
     gameEngine?.current?.swap(Entities());
     if (!timer) {
       setTimer(true);
@@ -61,21 +73,33 @@ export default () => {
 
   const start = () => {
     if (!running) {
-      setTimer(false)
-      setRun(true)
+      setTimer(false);
+      setRun(true);
     }
-  }
+  };
 
   const transformY = animate.interpolate({
     inputRange: [0, 1],
-    outputRange: [300, 0]
-  })
+    outputRange: [300, 0],
+  });
   const scaleText = animate.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 2]
-  })
+    outputRange: [0, 2],
+  });
+
   return (
     <View style={styles.container}>
+      <Text style={{
+        position: 'absolute',
+        top: 40,
+        left: 20,
+        fontSize: 30,
+        zIndex: 2000,
+        fontWeight: 'bold',
+        color: '#ffffff',
+      }}>
+
+      </Text>
       <Text style={{
         position: 'absolute',
         top: 40,
@@ -84,8 +108,9 @@ export default () => {
         zIndex: 2000,
         fontWeight: 'bold',
         color: '#ffffff',
+        textAlign: 'right',
       }}>
-        {score}
+        {`Current score: ${score}`}
       </Text>
       {timer
         ? (
@@ -115,57 +140,61 @@ export default () => {
         entities={Entities()}>
       </GameEngine>
       {gameOver ? (
-          <View style={styles.gameOverContainer}>
-            <Animated.View style={{
-              position: 'absolute',
-              top: 0, left: 0, right: 0, bottom: 0,
-              transform: [{ translateY: transformY }]
-            }}>
-              <LottieView
-                ref={gameOverLottie}
-                loop={true}
-                source={require('./Assets/34115-rocket-lunch.json')}
-              />
-            </Animated.View>
-            <Animated.Text
+        <View style={styles.gameOverContainer}>
+          <Text style={{ position: 'absolute', top: 20, right: 20, fontWeight: 'bold', fontSize: 16 }}>
+              Max score: {prevScore}
+          </Text>
+          <Animated.View style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            transform: [{ translateY: transformY }],
+          }}>
+            <LottieView
+              ref={gameOverLottie}
+              loop={true}
+              source={require('./Assets/34115-rocket-lunch.json')}
+            />
+          </Animated.View>
+          <Animated.Text
+            style={{
+              fontSize: 20,
+              fontWeight: 'bold',
+              transform: [{
+                scale: scaleText,
+              }],
+              textAlign: 'center',
+            }}
+          >
+            {`${gameOver}\nYour score: ${score}`}
+          </Animated.Text>
+          <Animated.View
+            style={{
+              marginTop: 50,
+              transform: [{
+                scale: scaleText,
+              }],
+            }}
+          >
+            <TouchableOpacity
+              onPress={restart}
               style={{
-                fontSize: 30,
-                fontWeight: 'bold',
-                transform: [{
-                  scale: scaleText,
-                }]
+                backgroundColor: '#efb609',
+                paddingHorizontal: 20,
+                paddingVertical: 5,
+                borderRadius: 10,
               }}
             >
-              {gameOver}
-            </Animated.Text>
-            <Animated.View
-              style={{
-                marginTop: 50,
-                transform: [{
-                  scale: scaleText,
-                }]
-              }}
-            >
-              <TouchableOpacity
-                onPress={restart}
-                style={{
-                  backgroundColor: '#efb609',
-                  paddingHorizontal: 20,
-                  paddingVertical: 5,
-                  borderRadius: 10,
-                }}
-              >
-                <Text>
+              <Text>
                   restart
-                </Text>
-              </TouchableOpacity>
-            </Animated.View>
-          </View>
-        ) : null
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      ) : null
       }
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -181,7 +210,7 @@ const styles = StyleSheet.create({
   },
   lottie: { width: 300, height: 200 },
   lottieContainer: { position: 'absolute', top: 350, left: 35, zIndex: 1000 },
-  background: {flex:1, transform: [{ rotate: '180deg' }]},
+  background: { flex:1, transform: [{ rotate: '180deg' }] },
   gameOverContainer: {
     overflow: 'hidden',
     borderRadius: 10,
@@ -193,6 +222,6 @@ const styles = StyleSheet.create({
     bottom: 200,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ffffff'
-  }
+    backgroundColor: '#ffffff',
+  },
 });

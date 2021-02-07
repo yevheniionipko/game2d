@@ -1,15 +1,15 @@
 import React from 'react';
-import {array, object, string} from 'prop-types';
 import Matter from 'matter-js';
 import FastImage from 'react-native-fast-image';
 
-const chestnut = require('../Assets/каштан.png')
+const chestnut = require('../Assets/каштан.png');
 
-const Obstacle = props => {
+const Obstacle = (props: { size: any[], body: { position: { x: number, y: number } } }) => {
   const width = props.size[0];
   const height = props.size[1];
   const x = props.body.position.x - width / 2;
   const y = props.body.position.y - height / 2;
+  
   return (
     <FastImage
       style={[
@@ -28,13 +28,13 @@ const Obstacle = props => {
   );
 };
 
-export default (world, pos, size) => {
+export default (world: Matter.World, pos: { x: number, y: number }, size: { width: number, height: number }) => {
   const initialObstacle = Matter.Bodies.rectangle(
     pos.x,
     pos.y,
     size.width,
     size.height,
-    {isStatic: false, label: 'obstacle'},
+    { isStatic: false, label: 'obstacle' },
   );
 
   Matter.World.add(world, [initialObstacle]);
@@ -43,6 +43,7 @@ export default (world, pos, size) => {
     body: initialObstacle,
     size: [size.width, size.height],
     scored: false,
+    // @ts-ignore
     renderer: <Obstacle />,
   };
 };
