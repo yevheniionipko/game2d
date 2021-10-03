@@ -2,7 +2,7 @@ import Rocket from '../Components/Rocket';
 import Matter from 'matter-js';
 import Obstacle from '../Components/Obstacle';
 import { getRandom } from '../Utils/random';
-import { height } from '../Utils/styleSheet';
+import { height, heightRatio, width } from "../Utils/styleSheet";
 
 Matter.Common.isElement = () => false; //-- Overriding this function because the original references HTMLElement
 
@@ -23,7 +23,7 @@ export default () => {
     physics: { engine: engine, world: world },
     Rocket: Rocket(
       world,
-      { x: Math.floor(375 / 2) + 24, y: height - 200 },
+      { x: Math.floor(width / 1.9), y: height * 0.8 },
       { height: boxSize, width: boxSize },
     ),
     ...Array.from({ length: 5 }, (v, k) => k).reduce((acc, curr) => {
@@ -33,7 +33,7 @@ export default () => {
       return {
         ...acc,
         ['Obstacle' + curr]:
-          Obstacle(world, { y: y ? y - 200 : -100, x: getRandom(10, 365) }, { width: 40, height: 40 }),
+          Obstacle(world, { y: y ? y - (200) : -100, x: getRandom(10, width - 10) }, { width: 40, height: 40 }),
       };
     }, {}),
   };

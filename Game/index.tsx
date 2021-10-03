@@ -6,6 +6,7 @@ import { GameEngine } from 'react-native-game-engine';
 import FastImage from 'react-native-fast-image';
 import LottieView from 'lottie-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { height, width, widthRatio } from "./Utils/styleSheet";
 
 export default (): React.ReactNode => {
   const gameEngine = useRef<GameEngine>(null);
@@ -31,12 +32,14 @@ export default (): React.ReactNode => {
 
   useEffect(() => {
     if (!!gameOver) {
-      Animated.timing(animate, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start();
-      gameOverLottie?.current?.play();
+      setTimeout(() => {
+        Animated.timing(animate, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }).start();
+        gameOverLottie?.current?.play();
+      }, 500)
     }
   }, [gameOver]);
 
@@ -92,19 +95,8 @@ export default (): React.ReactNode => {
       <Text style={{
         position: 'absolute',
         top: 40,
-        left: 20,
-        fontSize: 30,
-        zIndex: 2000,
-        fontWeight: 'bold',
-        color: '#ffffff',
-      }}>
-
-      </Text>
-      <Text style={{
-        position: 'absolute',
-        top: 40,
         right: 20,
-        fontSize: 30,
+        fontSize: 24 * widthRatio,
         zIndex: 2000,
         fontWeight: 'bold',
         color: '#ffffff',
@@ -141,7 +133,7 @@ export default (): React.ReactNode => {
       </GameEngine>
       {gameOver ? (
         <View style={styles.gameOverContainer}>
-          <Text style={{ position: 'absolute', top: 20, right: 20, fontWeight: 'bold', fontSize: 16 }}>
+          <Text style={{ position: 'absolute', top: 20, right: 20, fontWeight: 'bold', fontSize: 12 * widthRatio }}>
               Max score: {prevScore}
           </Text>
           <Animated.View style={{
@@ -157,7 +149,7 @@ export default (): React.ReactNode => {
           </Animated.View>
           <Animated.Text
             style={{
-              fontSize: 20,
+              fontSize: 16 * widthRatio,
               fontWeight: 'bold',
               transform: [{
                 scale: scaleText,
@@ -208,8 +200,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
   },
-  lottie: { width: 300, height: 200 },
-  lottieContainer: { position: 'absolute', top: 350, left: 35, zIndex: 1000 },
+  lottie: { width: width - 60, height: 200 },
+  lottieContainer: { position: 'absolute', top: Math.floor(height / 2.6), left: 30, zIndex: 1000 },
   background: { flex:1, transform: [{ rotate: '180deg' }] },
   gameOverContainer: {
     overflow: 'hidden',

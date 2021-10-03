@@ -39,7 +39,6 @@ export default (world: Matter.World, pos: { x: number, y: number }, size: { widt
   return {
     body: initialRocket,
     size: [size.width, size.height],
-    // @ts-ignore
     renderer: <Rocket />,
   };
 };

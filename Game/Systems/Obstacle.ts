@@ -1,6 +1,6 @@
 import Matter from 'matter-js';
 import { getRandom } from '../Utils/random';
-import { width } from '../Utils/styleSheet';
+import { height, heightRatio, width } from "../Utils/styleSheet";
 import Entities from '../Entities';
 
 // @ts-ignore
@@ -10,16 +10,16 @@ const UpdateObstacle = (entities: typeof Entities, { dispatch }) => {
   );
 
   obstacles.forEach((item) => {
-    if (item.body.position.y > 1000) {
+    if (item.body.position.y > height + 20) {
       Matter.Body.setPosition(item.body, {
-        x: getRandom(20, width - 20),
-        y: -100,
+        x: getRandom(10, width - 10),
+        y: -(100 * heightRatio),
       });
       dispatch({ type: 'score' });
     }
     if (item.body.position.x > width || item.body.position.x < 0) {
       Matter.Body.setPosition(item.body, {
-        x: getRandom(0, width - 30),
+        x: getRandom(10, width - 10),
         y: item.body.position.y,
       });
     }
